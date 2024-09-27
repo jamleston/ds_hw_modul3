@@ -12,10 +12,12 @@ def get_pageurl_list():
         url_list.append(url)
     return url_list
 
+pageurl_list = get_pageurl_list()
+
 def authors():
 
     def get_authorsurl_list():
-        for link in get_pageurl_list():
+        for link in pageurl_list:
             html_doc = requests.get(link)
             soup = BeautifulSoup(html_doc.text, 'html.parser')
             content = soup.select('div[class=quote] span a[href]')
@@ -57,7 +59,48 @@ def authors():
 
     return result_list
 
-res = authors()
+def quotes():
+
+    quotes_list = []
+
+    for link in pageurl_list:
+        html_doc = requests.get(link)
+        soup = BeautifulSoup(html_doc.text, 'html.parser')
+        content = soup.select('div[class=quote]')
+        
+        for el in content:
+
+            quote_dict = {}
+
+            # tags
+            tags = el.find_all('a', attrs={'class': 'tag'})
+            def make_list(list):
+                tags_list = []
+                for el in list:
+                    tag = el.text
+                    tags_list.append(tag)
+                return tags_list
+            quote_dict['tags'] = make_list(tags)
+
+            # author
+            author = el.find('small', attrs={'class': 'author'}).text
+            quote_dict['author'] = author
+
+            # quote
+            quote = el.find('span', attrs={'class': 'text'}).text
+            quote_dict['quote'] = quote
+
+            quotes_list.append(quote_dict)
+
+        return quotes_list
+    
+    return quotes_list
+
+authors_result = authors()
+quotes_result = quotes()
 
 with open('authors.json', 'w', encoding='utf=8') as f:
-    json.dump(res, f, ensure_ascii=False, indent=4)
+    json.dump(authors_result, f, ensure_ascii=False, indent=4)
+
+with open('quotes.json', 'w', encoding='utf=8') as f:
+    json.dump(quotes_result, f, ensure_ascii=False, indent=4)
