@@ -54,7 +54,11 @@ def showAll():
 
 def showCatById(id):
     result = db.cats.find_one({"_id": ObjectId(id)})
-    return result
+    if result:
+        return result
+    else:
+        answer = 'No cat with this id, check it twice'
+        return answer
 
 # res = showCatById('66f4022d81b181920b27d926')
 # print(res)
@@ -64,19 +68,31 @@ def showCatById(id):
 # 
 
 def updateAge(name, age):
-    db.cats.update_one({"name": name}, {"$set": {"age": age}})
-    result = db.cats.find_one({"name": name})
-    return result
+    new_name = name.lower()
+    cat = db.cats.find_one({"name": new_name})
+    if cat:
+        db.cats.update_one({"name": new_name}, {"$set": {"age": age}})
+        result = db.cats.find_one({"name": new_name})
+        return result
+    else:
+        answer = f'We dont have cat named {name}, try another'
+        return answer
 
-# res = updateAge('barsik', 10000000)
+# res = updateAge('Barsik', 10000000)
 # print(res)
 
 def addNewFeature(name, feature):
-    db.cats.update_one({'name': name}, {'$addToSet': {'features': feature}})
-    result = db.cats.find_one({"name": name})
-    return result
+    new_name = name.lower()
+    cat = db.cats.find_one({"name": new_name})
+    if cat:
+        db.cats.update_one({'name': new_name}, {'$addToSet': {'features': feature}})
+        result = db.cats.find_one({"name": new_name})
+        return result
+    else:
+        answer = f'We dont have cat named {name}, try another'
+        return answer
 
-# res = addNewFeature('barsik', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+# res = addNewFeature('arsik', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 # print(res)
 
 # 
@@ -84,11 +100,17 @@ def addNewFeature(name, feature):
 # 
 
 def deleteByName(name):
-    db.cats.delete_one({"name": name})
-    result = db.cats.find_one({"name": name})
-    return result
+    new_name = name.lower()
+    cat = db.cats.find_one({"name": new_name})
+    if cat:
+        db.cats.delete_one({"name": new_name})
+        result = db.cats.find_one({"name": new_name})
+        return result
+    else:
+        answer = f'We dont have cat named {name}, try another'
+        return answer
 
-# res = deleteByName('barsik')
+# res = deleteByName('Barsik')
 # print(res)
 
 def deleteAll():
