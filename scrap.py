@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import pymongo
+from pymongo import MongoClient, InsertOne
+from pymongo.server_api import ServerApi
 
 URL = 'https://quotes.toscrape.com'
 
@@ -104,3 +107,35 @@ with open('authors.json', 'w', encoding='utf=8') as f:
 
 with open('quotes.json', 'w', encoding='utf=8') as f:
     json.dump(quotes_result, f, ensure_ascii=False, indent=4)
+
+
+# import to mongo
+
+client = MongoClient(
+    "mongodb+srv://user:12345@cluster0.mxpz2.mongodb.net/",
+    server_api=ServerApi('1')
+)
+
+db = client.scrap
+
+collection1 = db.authors
+requesting1 = []
+
+with open(r"authors.json") as f:
+    for jsonObj in f:
+        myDict = json.loads(jsonObj)
+        requesting1.append(InsertOne(myDict))
+
+result = collection1.bulk_write(requesting1)
+client.close()
+
+collection2 = db.quotes
+requesting2 = []
+
+with open(r"quotes.json") as f:
+    for jsonObj in f:
+        myDict = json.loads(jsonObj)
+        requesting2.append(InsertOne(myDict))
+
+result = collection2.bulk_write(requesting2)
+client.close()
